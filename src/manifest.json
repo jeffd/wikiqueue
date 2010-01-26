@@ -20,7 +20,7 @@
     {
       "run_at": "document_end",
       "js": [
-        "lib/jquery-1.4.min.js",
+        "lib/jquery-1.4.1.min.js",
         "content/content.js"
       ],
       "matches": [
