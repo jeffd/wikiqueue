@@ -1,0 +1,31 @@
+{
+  "name": "WikiQueue",
+  "id": "706daf976aab42dc9b5035841748ea9e",
+  "description": "Creates a queue of pages when links are clicked on Wikipeida.org",
+  "version": "0.0.1",
+  "permissions": [
+    "http://*.wikipedia.org/*",
+    "tabs"
+  ],
+    "browser_action": {
+    "default_icon": "images/icon19.png",
+    "default_title": "Wikipedia Queue",
+    "popup" : "popup/popup.html"
+  },
+  "icons": {
+    "128": "images/icon128.png"
+  },
+  "background_page": "background/background.html",
+  "content_scripts": [
+    {
+      "run_at": "document_end",
+      "js": [
+        "lib/jquery-1.4.min.js",
+        "content/content.js"
+      ],
+      "matches": [
+        "http://*.wikipedia.org/*"
+      ]
+    }
+  ]
+}
