@@ -34,8 +34,6 @@
 // http://www.rajdeepd.com/articles/chrome/localstrg/LocalStorageSample.htm
 //
 
-var logging  = true;
-
 console.log('call first time only');
 
 chrome.extension.onRequest.addListener(
@@ -43,47 +41,13 @@ chrome.extension.onRequest.addListener(
     console.log(sender.tab ?
                 "from a content script:" + sender.tab.url :
                 "from the extension");
-    if (request.greeting == "hello")
-      sendResponse({farewell: "goodbye"});
-    else
-      sendResponse({}); // snub them.
+    if (request.href !== "") {
+        utils.setItem(request.href, request);
+        sendResponse({success: true});
+    }
+    else {
+        sendResponse({}); // snub them
+    }
+
 });
 
-
-function setItem(key, value) {
-  try {
-    log("Inside setItem:" + key + ":" + value);
-    window.localStorage.removeItem(key);
-    window.localStorage.setItem(key, value);
-  }catch(e) {
-    log("Error inside setItem");
-    log(e);
-  }
-  log("Return from setItem" + key + ":" +  value);
-}
-
-function getItem(key) {
-  var value;
-  log('Get Item:' + key);
-  try {
-    value = window.localStorage.getItem(key);
-  }catch(e) {
-    log("Error inside getItem() for key:" + key);
-    log(e);
-    value = "null";
-  }
-  log("Returning value: " + value);
-  return value;
-}
-
-function clearStrg() {
-  log('about to clear local storage');
-  window.localStorage.clear();
-  log('cleared');
-}
-
-function log(txt) {
-  if(logging) {
-    console.log(txt);
-  }
-}

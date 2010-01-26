@@ -28,3 +28,61 @@
  *  Jeff Dlouhy <jeff.dlouhy@gmail.com>
  *
  * ***** END LICENSE BLOCK ***** */
+
+var utils = {};
+
+utils.logging = true;
+
+/***
+* function: setItem
+*
+* Adds an item to the local DB
+***/
+utils.setItem = function(key, value) {
+  try {
+    utils.log("Inside setItem:" + key + ":" + value);
+    window.localStorage.removeItem(key);
+    window.localStorage.setItem(key, value);
+  }catch(e) {
+    utils.log("Error inside setItem");
+    utils.log(e);
+  }
+  utils.log("Return from setItem" + key + ":" +  value);
+};
+
+/***
+* function: getItem
+*
+* Returns an item to the local DB
+* based on the key passed to it
+***/
+utils.getItem = function(key) {
+  var value;
+  utils.log('Get Item:' + key);
+  try {
+    value = window.localStorage.getItem(key);
+  }catch(e) {
+    utils.log("Error inside getItem() for key:" + key);
+    utils.log(e);
+    value = "null";
+  }
+  utils.log("Returning value: " + value);
+  return value;
+};
+
+/***
+* function: clearStorage
+*
+* Deletes all the entries in the local DB
+***/
+utils.clearStorage = function() {
+  utils.log('about to clear local storage');
+  window.localStorage.clear();
+  utils.log('cleared');
+};
+
+utils.log = function(txt) {
+  if(utils.logging) {
+    console.log(txt);
+  }
+};

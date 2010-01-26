@@ -30,3 +30,7 @@
  * ***** END LICENSE BLOCK ***** */
 
 
+chrome.extension.onRequest.addListener(
+  function(request, sender, sendResponse) {
+      sendResponse({}); // snub the response
+});
