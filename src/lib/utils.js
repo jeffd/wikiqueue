@@ -37,12 +37,18 @@ utils.logging = true;
 * function: setItem
 *
 * Adds an item to the local DB
+*
+* ! NOTICE !
+* It assumes that it is an object passed to it
+* and will convert it to a string
 ***/
 utils.setItem = function(key, value) {
   try {
+    // Convert the object to a string
+    var qItemString = JSON.stringify(value);
     utils.log("Inside setItem:" + key + ":" + value);
     window.localStorage.removeItem(key);
-    window.localStorage.setItem(key, value);
+    window.localStorage.setItem(key, qItemString);
   }catch(e) {
     utils.log("Error inside setItem");
     utils.log(e);
@@ -61,6 +67,8 @@ utils.getItem = function(key) {
   utils.log('Get Item:' + key);
   try {
     value = window.localStorage.getItem(key);
+    var strToJSON = JSON.parse(value);
+    value = strToJSON;
   }catch(e) {
     utils.log("Error inside getItem() for key:" + key);
     utils.log(e);
@@ -79,6 +87,44 @@ utils.clearStorage = function() {
   utils.log('about to clear local storage');
   window.localStorage.clear();
   utils.log('cleared');
+};
+
+/***
+* function: key
+*
+* Returns a key at the nth position
+***/
+utils.key = function(index) {
+  var value;
+  utils.log('Get Item:' + index);
+  try {
+    value = window.localStorage.key(index);
+  }catch(e) {
+    utils.log("Error inside key() for index:" + index);
+    utils.log(e);
+    value = "null";
+  }
+  utils.log("Returning value: " + value);
+  return value;
+};
+
+/***
+* function: length
+*
+* Returns the length of the DB
+***/
+utils.length = function() {
+  var value;
+  utils.log('Get length');
+  try {
+    value = window.localStorage.length;
+  }catch(e) {
+    utils.log("Error inside length attribute");
+    utils.log(e);
+    value = "null";
+  }
+  utils.log("Returning value: " + value);
+  return value;
 };
 
 utils.log = function(txt) {
