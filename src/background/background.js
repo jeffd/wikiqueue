@@ -36,14 +36,28 @@
 
 console.log('call first time only');
 
+
+/***
+* event: addListener
+*
+* Waits for events and if 
+***/
 chrome.extension.onRequest.addListener(
   function(request, sender, sendResponse) {
     console.log(sender.tab ?
                 "from a content script:" + sender.tab.url :
                 "from the extension");
-    if (request.href !== "") {
-        utils.setItem(request.href, request);
-        sendResponse({success: true});
+    var qItem = request;
+    if (qItem.state === "new") {
+        // Add it to the DB
+        utils.setItem(qItem.url, qItem);
+        // Change it's state
+        qItem.state = "unsorted";
+        // Send it along to be added to the popup UI
+        chrome.extension.sendRequest(qItem, function(response) {
+            // Tell the sender the results
+            sendResponse({success: response.success});
+         });
     }
     else {
         sendResponse({}); // snub them

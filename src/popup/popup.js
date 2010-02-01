@@ -32,5 +32,79 @@
 
 chrome.extension.onRequest.addListener(
   function(request, sender, sendResponse) {
-      sendResponse({}); // snub the response
+    var qItem = request;
+    if (qItem.state === "unsorted") {
+        // Add it to the list UI
+        addItemToList(qItem);
+        // Change it's state
+        qItem.state = "showing";
+        // Send it along to be added to the popup UI
+        chrome.extension.sendRequest(qItem, function(response) {
+            // TODO: find out if it succeded
+            sendResponse({success: true});
+         });
+    }
+    else {
+        sendResponse({}); // snub them
+    }
 });
+
+/***
+* function: addItemToList
+* return: The new item's index
+*
+* Adds an item to the list in the popup UI
+***/
+function addItemToList(newQueryItem) {
+  var aResult = $(document.createElement("li"));
+  var aLink = $(document.createElement("a")).attr("href", "").html(newQueryItem.title);
+  aResult.append(aLink);
+
+  // Bind the click handler
+  aResult.mouseup(function(){
+    openQueuedItem(newQueryItem);
+  });
+  $("#queuelist").append(aResult);
+
+  // return some index
+}
+
+/***
+* function: openQueuedItem
+*
+* Creates a new tab in the current window
+* with the query item that is passed to it
+***/
+function openQueuedItem(queryItem) {
+  var createProperties = {};
+  createProperties.url = queryItem.url;
+//  createProperties.index = queryItem.tabId + 1;
+
+  chrome.tabs.create(createProperties, function(window) {
+    //TODO: Call for the item to be removed from the queue.
+  });
+}
+
+/***
+* function: getAllShowingItems
+* return: sorted array of all showing elements
+*
+* Go through the DB and find all showing elements
+***/
+function getAllShowingItems() {
+
+  var showingItems = new Array();
+  var dbLen = utils.length() - 1;
+
+  while(dbLen >= 0) {
+    var item = utils.getItem(utils.key(dbLen));
+    addItemToList(item);
+    dbLen--;
+  }
+
+ return showingItems;
+}
+
+$(document).ready(function() {
+   getAllShowingItems();
+ });

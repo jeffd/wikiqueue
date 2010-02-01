@@ -39,6 +39,16 @@ wikiLinks.each(function(i) {
   qItem.url = getBaseURL() + $(this).attr('href');
   qItem.title = $(this).attr('innerText');
   qItem.origin = $(this).attr('baseURI');
+  qItem.state = "new";
+
+  // Get the current tab's index
+  // Later we can use this to optionally add it
+  // behind the originating tab for context
+  // TODO: What happens between sessions or when
+  // the originating tab is gone?
+  // chrome.tabs.getSelected(function(tab) {
+  //   qItem.tabId = tab.id;
+  // });
 
   $(this).mouseup(function(){
     chrome.extension.sendRequest(qItem, function(response) {
