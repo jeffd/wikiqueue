@@ -4,3 +4,19 @@ Wiki Queue
 This Chrome Extension creates a queue of pages when links are clicked on Wikipeida.org
 
 It is inspired by Wikipanion Plus' Queue feature for the iPhone: http://www.wikipanion.net/wikipanionplus_features.html
+
+
+JSON Item Attributes
+====================
+ * url - http://en.wikipedia.org/wiki/Grover_Cleveland
+ * title - Grover Cleveland
+ * baseURI - http://en.wikipedia.org/
+ * state - new (see below)
+ * tabId - The tab id of the source article
+
+JSON Item States
+================
+ * new - Has not been added to the DB yet
+ * unsorted - Does not have an index in the queue array
+ * showing - Has been added to queue UI and has an index
+ * visited - removed from the queue UI but kept in the DB for history
