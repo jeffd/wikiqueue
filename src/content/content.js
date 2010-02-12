@@ -30,9 +30,15 @@
  * ***** END LICENSE BLOCK ***** */
 
 console.log("We be on Wikipedia");
-
+var spinnerImg = chrome.extension.getURL("content/spinner.png");
+var spinnerImgR = chrome.extension.getURL("content/spinner-right.png");
+var spinnerImgL = chrome.extension.getURL("content/spinner-left.png");
+var spinnerImgLR = chrome.extension.getURL("content/spinner-lr.png");
 var wikiLinks = $("a[href^=/wiki]").not("a.internal");
-console.log(wikiLinks);
+
+
+var spinner = $(document.createElement("p")).attr("id", "spinner");
+spinner.css("-webkit-mask-image", "url("+spinnerImgLR+")");
 
 wikiLinks.each(function(i) {
   var qItem = {};
@@ -50,12 +56,33 @@ wikiLinks.each(function(i) {
   //   qItem.tabId = tab.id;
   // });
 
-  $(this).mouseup(function(){
-    chrome.extension.sendRequest(qItem, function(response) {
-       console.log(response);
+  $(this).mousedown(function(event) {
+    spinner.css("top", event.pageY);
+    spinner.css("left", event.pageX);
+    spinner.bind("mouseleave", stopTimer);
+    spinner.bind("mouseup", stopTimer);
+
+    console.log("down");
+
+    spinner.oneTime(300, "overrideBehavior", function() {
+      $("body").append(spinner);
+      spinner.oneTime(1700, "overrideBehavior", function() {
+        $("#spinner").remove();
+        window.location = qItem.url;
+      });
     });
   });
 
+  var stopTimer = function() {
+    console.log("CANCEL");
+    $("#spinner").stopTime("overrideBehavior");
+    $("#spinner").remove();
+    chrome.extension.sendRequest(qItem, function(response) {
+      console.log(response);
+    });
+  };
+
+  $(this).bind("mouseup", stopTimer);
   $(this).removeAttr('href');
 });
 
