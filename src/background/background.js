@@ -49,10 +49,10 @@ chrome.extension.onRequest.addListener(
                 "from the extension");
     var qItem = request;
     if (qItem.state === "new") {
-        // Add it to the DB
-        utils.setItem(qItem.url, qItem);
         // Change it's state
         qItem.state = "unsorted";
+        // Add it to the DB
+        utils.setItem(qItem.url, qItem);
         // Send it along to be added to the popup UI
         chrome.extension.sendRequest(qItem, function(response) {
             // Tell the sender the results

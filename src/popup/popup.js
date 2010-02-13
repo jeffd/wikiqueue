@@ -56,17 +56,22 @@ chrome.extension.onRequest.addListener(
 * Adds an item to the list in the popup UI
 ***/
 function addItemToList(newQueryItem) {
-  var aResult = $(document.createElement("li"));
-  var aLink = $(document.createElement("a")).attr("href", "").html(newQueryItem.title);
-  aResult.append(aLink);
+  if (newQueryItem.state === "unsorted" || newQueryItem.state === "showing"){
+    var aResult = $(document.createElement("li"));
+    var aLink = $(document.createElement("a")).attr("href", "").html(newQueryItem.title);
+    aResult.append(aLink);
 
-  // Bind the click handler
-  aResult.mouseup(function(){
-    openQueuedItem(newQueryItem);
-  });
-  $("#queuelist").append(aResult);
+    // Bind the click handler
+    aResult.mouseup(function(){
+      openQueuedItem(newQueryItem);
+    });
+    $("#queuelist").append(aResult);
 
-  // return some index
+    // Change its state and update the db
+    newQueryItem.state = "showing";
+    utils.setItem(newQueryItem.url, newQueryItem);
+    // return some index
+  }
 }
 
 /***
@@ -82,7 +87,11 @@ function openQueuedItem(queryItem) {
 
   chrome.tabs.create(createProperties, function(window) {
     //TODO: Call for the item to be removed from the queue.
+    // Change its state and update the db
+    queryItem.state = "visited";
+    utils.setItem(queryItem.url, queryItem);
   });
+    window.close();
 }
 
 /***

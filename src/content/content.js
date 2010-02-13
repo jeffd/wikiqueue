@@ -30,15 +30,21 @@
  * ***** END LICENSE BLOCK ***** */
 
 console.log("We be on Wikipedia");
-var spinnerImg = chrome.extension.getURL("content/spinner.png");
+var spinnerImg = chrome.extension.getURL("content/progress-full.png");
 var spinnerImgR = chrome.extension.getURL("content/spinner-right.png");
 var spinnerImgL = chrome.extension.getURL("content/spinner-left.png");
 var spinnerImgLR = chrome.extension.getURL("content/spinner-lr.png");
 var wikiLinks = $("a[href^=/wiki]").not("a.internal");
 
+var OVERRIDEBEHAVIOR = "overrideBehavior";
+var SPINIMATION = "spinimation";
+
+function spinnerImageURL(num) {
+    return "url("+chrome.extension.getURL("content/progress-" + num +".png")+")";
+}
 
 var spinner = $(document.createElement("p")).attr("id", "spinner");
-spinner.css("-webkit-mask-image", "url("+spinnerImgLR+")");
+spinner.css("-webkit-mask-image", spinnerImageURL(0));
 
 wikiLinks.each(function(i) {
   var qItem = {};
@@ -57,35 +63,53 @@ wikiLinks.each(function(i) {
   // });
 
   $(this).mousedown(function(event) {
-    spinner.css("top", event.pageY);
-    spinner.css("left", event.pageX);
     spinner.bind("mouseleave", stopTimer);
     spinner.bind("mouseup", stopTimer);
+    $("body").bind("mouseleave", stopTimer);
+    $("body").bind("mouseup", stopTimer);
 
-    console.log("down");
-
-    spinner.oneTime(300, "overrideBehavior", function() {
+    // When the user holds down the mouse
+    // Wait a few seconds before starting the spinner
+    // because we don't want to start it on a normal click.
+    // This gives us a slight buffer time.
+    spinner.oneTime(300, OVERRIDEBEHAVIOR, function() {
+      spinner.css("top", event.pageY);
+      spinner.css("left", event.pageX);
       $("body").append(spinner);
-      spinner.oneTime(1700, "overrideBehavior", function() {
+
+      spinner.everyTime(75, SPINIMATION, function(i) {
+        console.log("tick: "+ i );
+        spinner.css("-webkit-mask-image", spinnerImageURL(i));
+      }, 14);
+
+      spinner.oneTime(1700, OVERRIDEBEHAVIOR, function() {
         $("#spinner").remove();
-        window.location = qItem.url;
+        // Go to the URL
+        gotoURL(qItem.url);
       });
     });
   });
 
-  var stopTimer = function() {
-    console.log("CANCEL");
-    $("#spinner").stopTime("overrideBehavior");
-    $("#spinner").remove();
+  var queueURL = function() {
     chrome.extension.sendRequest(qItem, function(response) {
       console.log(response);
     });
   };
 
-  $(this).bind("mouseup", stopTimer);
+  $(this).bind("click", queueURL);
   $(this).removeAttr('href');
 });
 
+var stopTimer = function() {
+  console.log("CANCEL");
+  spinner.stopTime(OVERRIDEBEHAVIOR);
+  spinner.remove();
+  spinner.stopTime(SPINIMATION);
+};
+
+function gotoURL(aURL) {
+  window.location = aURL;
+}
 
 function getBaseURL() {
   var url = location.href;  // entire url including querystring - also: window.location.href;
