@@ -75,7 +75,7 @@ wikiLinks.each(function(i) {
     spinner.oneTime(300, OVERRIDEBEHAVIOR, function() {
       spinner.css("top", event.pageY);
       spinner.css("left", event.pageX);
-      $("body").append(spinner);
+      $("body").prepend(spinner);
 
       spinner.everyTime(75, SPINIMATION, function(i) {
         console.log("tick: "+ i );
