@@ -38,13 +38,21 @@ var wikiLinks = $("a[href^=/wiki]").not("a.internal");
 
 var OVERRIDEBEHAVIOR = "overrideBehavior";
 var SPINIMATION = "spinimation";
+var SPINNERIMAGES = [];
 
 function spinnerImageURL(num) {
-    return "url("+chrome.extension.getURL("content/progress-" + num +".png")+")";
+  return "url("+chrome.extension.getURL("content/progress-" + num +".png")+")";
 }
 
+// function preloadImages() {
+//   for (var i=0; i < 15; i++) {
+//     var img = new Image();
+//     img.src = spinnerImageURL(i);
+//     SPINNERIMAGES[i] = img.src;
+//   }
+// }
+
 var spinner = $(document.createElement("p")).attr("id", "spinner");
-spinner.css("-webkit-mask-image", spinnerImageURL(0));
 
 wikiLinks.each(function(i) {
   var qItem = {};
@@ -76,6 +84,7 @@ wikiLinks.each(function(i) {
       spinner.css("top", event.pageY);
       spinner.css("left", event.pageX);
       $("body").prepend(spinner);
+      spinner.css("-webkit-mask-image", spinnerImageURL(0));
 
       spinner.everyTime(75, SPINIMATION, function(i) {
         console.log("tick: "+ i );
@@ -101,7 +110,6 @@ wikiLinks.each(function(i) {
 });
 
 var stopTimer = function() {
-  console.log("CANCEL");
   spinner.stopTime(OVERRIDEBEHAVIOR);
   spinner.remove();
   spinner.stopTime(SPINIMATION);
@@ -111,21 +119,26 @@ function gotoURL(aURL) {
   window.location = aURL;
 }
 
+function displayNotification(event) {
+
+}
+
+
 function getBaseURL() {
   var url = location.href;  // entire url including querystring - also: window.location.href;
   var baseURL = url.substring(0, url.indexOf('/', 14));
-    if (baseURL.indexOf('http://localhost') != -1) {
-      // Base Url for localhost
-      var url = location.href;  // window.location.href;
-      var pathname = location.pathname;  // window.location.pathname;
-      var index1 = url.indexOf(pathname);
-      var index2 = url.indexOf("/", index1 + 1);
-      var baseLocalUrl = url.substr(0, index2);
+  if (baseURL.indexOf('http://localhost') != -1) {
+    // Base Url for localhost
+    var url = location.href;  // window.location.href;
+    var pathname = location.pathname;  // window.location.pathname;
+    var index1 = url.indexOf(pathname);
+    var index2 = url.indexOf("/", index1 + 1);
+    var baseLocalUrl = url.substr(0, index2);
 
-      return baseLocalUrl + "/";
-    }
-    else {
-      // Root Url for domain name
-      return baseURL;
-    }
+    return baseLocalUrl + "/";
+  }
+  else {
+    // Root Url for domain name
+    return baseURL;
+  }
 }

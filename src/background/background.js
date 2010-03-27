@@ -36,11 +36,10 @@
 
 console.log('call first time only');
 
-
 /***
 * event: addListener
 *
-* Waits for events and if 
+* Waits for events and if
 ***/
 chrome.extension.onRequest.addListener(
   function(request, sender, sendResponse) {

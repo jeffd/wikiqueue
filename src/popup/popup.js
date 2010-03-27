@@ -34,20 +34,20 @@ chrome.extension.onRequest.addListener(
   function(request, sender, sendResponse) {
     var qItem = request;
     if (qItem.state === "unsorted") {
-        // Add it to the list UI
-        addItemToList(qItem);
-        // Change it's state
-        qItem.state = "showing";
-        // Send it along to be added to the popup UI
-        chrome.extension.sendRequest(qItem, function(response) {
-            // TODO: find out if it succeded
-            sendResponse({success: true});
-         });
+      // Add it to the list UI
+      var resultingIndex = addItemToList(qItem);
+      // Change it's state
+      qItem.state = "showing";
+      // Send it along to be added to the popup UI
+      chrome.extension.sendRequest(qItem, function(response) {
+      // TODO: find out if it succeded
+        sendResponse({success: true});
+     });
     }
     else {
-        sendResponse({}); // snub them
+      sendResponse({}); // snub them
     }
-});
+  });
 
 /***
 * function: addItemToList
@@ -72,6 +72,8 @@ function addItemToList(newQueryItem) {
     utils.setItem(newQueryItem.url, newQueryItem);
     // return some index
   }
+
+  return 0;
 }
 
 /***
@@ -91,7 +93,7 @@ function openQueuedItem(queryItem) {
     queryItem.state = "visited";
     utils.setItem(queryItem.url, queryItem);
   });
-    window.close();
+  window.close();
 }
 
 /***

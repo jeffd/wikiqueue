@@ -21,13 +21,11 @@
       "run_at": "document_end",
       "js": [
         "lib/jquery-1.4.1.min.js",
-        "lib/jquery.jgrowl_minimized.js",
         "lib/jquery.timers-1.2.js",
         "content/content.js"
       ],
       "css": [
-        "content/content.css",
-        "lib/jquery.jgrowl.css"
+        "content/content.css"
       ],
       "matches": [
         "http://*.wikipedia.org/*"
