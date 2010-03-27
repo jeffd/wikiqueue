@@ -58,8 +58,8 @@ wikiLinks.each(function(i) {
   var qItem = {};
   qItem.url = getBaseURL() + $(this).attr('href');
   qItem.title = $(this).attr('innerText');
-  qItem.origin = $(this).attr('baseURI');
-  qItem.state = "new";
+  qItem.baseuri = $(this).attr('baseURI');
+  qItem.visited = false;
 
   // Get the current tab's index
   // Later we can use this to optionally add it
@@ -129,11 +129,11 @@ function getBaseURL() {
   var baseURL = url.substring(0, url.indexOf('/', 14));
   if (baseURL.indexOf('http://localhost') != -1) {
     // Base Url for localhost
-    var url = location.href;  // window.location.href;
+    var bURL = location.href;  // window.location.href;
     var pathname = location.pathname;  // window.location.pathname;
-    var index1 = url.indexOf(pathname);
-    var index2 = url.indexOf("/", index1 + 1);
-    var baseLocalUrl = url.substr(0, index2);
+    var index1 = bURL.indexOf(pathname);
+    var index2 = bURL.indexOf("/", index1 + 1);
+    var baseLocalUrl = bURL.substr(0, index2);
 
     return baseLocalUrl + "/";
   }

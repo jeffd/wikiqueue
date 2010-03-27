@@ -33,12 +33,9 @@
 chrome.extension.onRequest.addListener(
   function(request, sender, sendResponse) {
     var qItem = request;
-    if (qItem.state === "unsorted") {
+    if (!qItem.visited) {
       // Add it to the list UI
       var resultingIndex = addItemToList(qItem);
-      // Change it's state
-      qItem.state = "showing";
-      // Send it along to be added to the popup UI
       chrome.extension.sendRequest(qItem, function(response) {
       // TODO: find out if it succeded
         sendResponse({success: true});
@@ -117,5 +114,5 @@ function getAllShowingItems() {
 }
 
 $(document).ready(function() {
-   getAllShowingItems();
+   //getAllShowingItems();
  });

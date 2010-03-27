@@ -35,6 +35,9 @@
 //
 
 console.log('call first time only');
+// Start the magic!
+utils.initDB();
+
 
 /***
 * event: addListener
@@ -47,11 +50,9 @@ chrome.extension.onRequest.addListener(
                 "from a content script:" + sender.tab.url :
                 "from the extension");
     var qItem = request;
-    if (qItem.state === "new") {
-        // Change it's state
-        qItem.state = "unsorted";
+    if (!qItem.visited) {
         // Add it to the DB
-        utils.setItem(qItem.url, qItem);
+        utils.addItem(qItem);
         // Send it along to be added to the popup UI
         chrome.extension.sendRequest(qItem, function(response) {
             // Tell the sender the results
@@ -61,6 +62,7 @@ chrome.extension.onRequest.addListener(
     else {
         sendResponse({}); // snub them
     }
-
 });
+
+
 

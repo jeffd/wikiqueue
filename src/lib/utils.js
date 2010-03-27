@@ -31,29 +31,58 @@
 
 var utils = {};
 
+var jsDate = new Date();
 utils.logging = true;
+
+utils.DATABASE_NAME = "wikiqueue";
+utils.DATABASE_VERSON = "1.0";
+utils.ARTICLE_TABLENAME = "articles";
+
+utils.QUERY = {};
+utils.QUERY.URL = "url";
+utils.QUERY.TITLE = "title";
+utils.QUERY.CREATED = "created";
+utils.QUERY.BASEURI = "baseuri";
+utils.QUERY.TABID = "tabid";
+utils.QUERY.VISITED = "visited";
+
+//
+// Adapted from http://github.com/remy/html5demos/blob/master/js/tweets.js
+//
+utils.initDB = function() {
+  try {
+    if (window.openDatabase) {
+      utils.db = openDatabase(utils.DATABASE_NAME, utils.DATABASE_VERSON, "Wikiqueue Extension Database", 200000);
+      if (utils.db) {
+        utils.db.transaction(function(tx) {
+            tx.executeSql("CREATE TABLE IF NOT EXISTS (? TEXT UNIQUE, ? TEXT, ? INTEGER, ? TEXT, ? INTEGER, ? BOOLEAN)", [utils.QUERY.URL, utils.QUERY.TITLE, utils.QUERY.CREATED, utils.QUERY.BASEURI, utils.QUERY.TABID, utils.QUERY.VISITED]);
+        });
+      } else {
+        utils.log("error occurred trying to open DB");
+      }
+    } else {
+      utils.log("Web Databases not supported");
+    }
+  } catch (e) {
+    utils.log("error occurred during DB init, Web Database supported?");
+  }
+};
 
 /***
 * function: setItem
 *
 * Adds an item to the local DB
-*
-* ! NOTICE !
-* It assumes that it is an object passed to it
-* and will convert it to a string
 ***/
-utils.setItem = function(key, value) {
+utils.addItem = function(queueItem) {
   try {
-    // Convert the object to a string
-    var qItemString = JSON.stringify(value);
-    utils.log("Inside setItem:" + key + ":" + value);
-    window.localStorage.removeItem(key);
-    window.localStorage.setItem(key, qItemString);
+    utils.db.transaction(function (tx) {
+                     tx.executeSql('INSERT INTO (?, ?, ?, ?, ?, ?) values (?, ?, ?, ?, ?, ?)', [utils.QUERY.URL, utils.QUERY.TITLE, utils.QUERY.CREATED, utils.QUERY.BASEURI, utils.QUERY.TABID, utils.QUERY.VISITED,
+                                                                                                queueItem.url, queueItem.title, jsDate.getTime(), queueItem.baseuri, queueItem.tabid, queueItem.visited]);
+                   });
   }catch(e) {
     utils.log("Error inside setItem");
     utils.log(e);
   }
-  utils.log("Return from setItem" + key + ":" +  value);
 };
 
 /***
@@ -85,7 +114,9 @@ utils.getItem = function(key) {
 ***/
 utils.clearStorage = function() {
   utils.log('about to clear local storage');
-  window.localStorage.clear();
+  db.transaction(function (tx) {
+     tx.executeSql('DROP TABLE IF EXISTS ?', [utils.ARTICLE_TABLENAME]);
+  });
   utils.log('cleared');
 };
 
