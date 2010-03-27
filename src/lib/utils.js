@@ -31,7 +31,6 @@
 
 var utils = {};
 
-var jsDate = new Date();
 utils.logging = true;
 
 utils.DATABASE_NAME = "wikiqueue";
@@ -54,8 +53,8 @@ utils.initDB = function() {
     if (window.openDatabase) {
       utils.db = openDatabase(utils.DATABASE_NAME, utils.DATABASE_VERSON, "Wikiqueue Extension Database", 200000);
       if (utils.db) {
-        utils.db.transaction(function(tx) {
-            tx.executeSql("CREATE TABLE IF NOT EXISTS (? TEXT UNIQUE, ? TEXT, ? INTEGER, ? TEXT, ? INTEGER, ? BOOLEAN)", [utils.QUERY.URL, utils.QUERY.TITLE, utils.QUERY.CREATED, utils.QUERY.BASEURI, utils.QUERY.TABID, utils.QUERY.VISITED]);
+          utils.db.transaction(function(tx) {
+            tx.executeSql("CREATE TABLE IF NOT EXISTS articles (url TEXT UNIQUE, title TEXT, created INTEGER, baseuri TEXT, tabid INTEGER, visited BOOLEAN)", []);
         });
       } else {
         utils.log("error occurred trying to open DB");
@@ -75,9 +74,9 @@ utils.initDB = function() {
 ***/
 utils.addItem = function(queueItem) {
   try {
-    utils.db.transaction(function (tx) {
-                     tx.executeSql('INSERT INTO (?, ?, ?, ?, ?, ?) values (?, ?, ?, ?, ?, ?)', [utils.QUERY.URL, utils.QUERY.TITLE, utils.QUERY.CREATED, utils.QUERY.BASEURI, utils.QUERY.TABID, utils.QUERY.VISITED,
-                                                                                                queueItem.url, queueItem.title, jsDate.getTime(), queueItem.baseuri, queueItem.tabid, queueItem.visited]);
+      utils.db.transaction(function (tx) {
+                     tx.executeSql("INSERT INTO articles (url, title, created, baseuri, tabid, visited) values (?, ?, ?, ?, ?, ?)",
+                                   [queueItem.url, queueItem.title, queueItem.created, queueItem.baseuri, queueItem.tabid, queueItem.visited]);
                    });
   }catch(e) {
     utils.log("Error inside setItem");
@@ -114,7 +113,7 @@ utils.getItem = function(key) {
 ***/
 utils.clearStorage = function() {
   utils.log('about to clear local storage');
-  db.transaction(function (tx) {
+  utils.db.transaction(function (tx) {
      tx.executeSql('DROP TABLE IF EXISTS ?', [utils.ARTICLE_TABLENAME]);
   });
   utils.log('cleared');

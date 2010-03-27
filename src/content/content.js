@@ -59,6 +59,8 @@ wikiLinks.each(function(i) {
   qItem.url = getBaseURL() + $(this).attr('href');
   qItem.title = $(this).attr('innerText');
   qItem.baseuri = $(this).attr('baseURI');
+  var jsDate = new Date();
+  qItem.created = jsDate.getTime();
   qItem.visited = false;
 
   // Get the current tab's index
