@@ -30,21 +30,21 @@
  * ***** END LICENSE BLOCK ***** */
 
 
-chrome.extension.onRequest.addListener(
-  function(request, sender, sendResponse) {
-    var qItem = request;
-    if (!qItem.visited) {
-      // Add it to the list UI
-      var resultingIndex = addItemToList(qItem);
-      chrome.extension.sendRequest(qItem, function(response) {
-      // TODO: find out if it succeded
-        sendResponse({success: true});
-     });
-    }
-    else {
-      sendResponse({}); // snub them
-    }
-  });
+// chrome.extension.onRequest.addListener(
+//   function(request, sender, sendResponse) {
+//     var qItem = request;
+//     if (!qItem.visited) {
+//       // Add it to the list UI
+//       var resultingIndex = addItemToList(qItem);
+//       chrome.extension.sendRequest(qItem, function(response) {
+//       // TODO: find out if it succeded
+//         sendResponse({success: true});
+//      });
+//     }
+//     else {
+//       sendResponse({}); // snub them
+//     }
+//   });
 
 /***
 * function: addItemToList
@@ -53,24 +53,21 @@ chrome.extension.onRequest.addListener(
 * Adds an item to the list in the popup UI
 ***/
 function addItemToList(newQueryItem) {
-  if (newQueryItem.state === "unsorted" || newQueryItem.state === "showing"){
+  if (newQueryItem.hasOwnProperty("visited")){
     var aResult = $(document.createElement("li"));
     var aLink = $(document.createElement("a")).attr("href", "").html(newQueryItem.title);
     aResult.append(aLink);
 
     // Bind the click handler
     aResult.mouseup(function(){
-      openQueuedItem(newQueryItem);
+      this.openQueuedItem(newQueryItem);
     });
     $("#queuelist").append(aResult);
 
     // Change its state and update the db
     newQueryItem.state = "showing";
-    utils.setItem(newQueryItem.url, newQueryItem);
     // return some index
   }
-
-  return 0;
 }
 
 /***
@@ -88,31 +85,43 @@ function openQueuedItem(queryItem) {
     //TODO: Call for the item to be removed from the queue.
     // Change its state and update the db
     queryItem.state = "visited";
-    utils.setItem(queryItem.url, queryItem);
   });
   window.close();
 }
 
 /***
 * function: getAllShowingItems
-* return: sorted array of all showing elements
 *
-* Go through the DB and find all showing elements
+* Send a query to the DB and find all showing elements
+* Then display them in the markup.
 ***/
-function getAllShowingItems() {
+function displayAllShowingItems() {
+  var dbQuery = "SELECT * FROM articles WHERE visited = 'false' ORDER BY created DESC";
+  // Make sure the DB is connected
+  //var sortedItems = function () {return utils.getItemsFromQuery(dbQuery);};
+  //console.log(sortedItems());
+  //this.addItemsToPopup(sortedItems);
+  chrome.extension.sendRequest({ query: dbQuery }, this.gotQueryResponse);
+}
 
-  var showingItems = new Array();
-  var dbLen = utils.length() - 1;
+function gotQueryResponse(response) {
+  var respItems = JSON.parse(response.results);
+  this.addItemsToPopup(respItems);
+}
 
-  while(dbLen >= 0) {
-    var item = utils.getItem(utils.key(dbLen));
-    addItemToList(item);
-    dbLen--;
+/***
+* function: addItemsToPopup
+*
+* Add a list of popup items to the popup markup
+***/
+function addItemsToPopup(itemList) {
+  console.log(itemList);
+  for (i = 0; i < itemList.length; i++) {
+    this.addItemToList(itemList[i]);
   }
-
- return showingItems;
 }
 
 $(document).ready(function() {
-   //getAllShowingItems();
+  //utils.initDB(connected);
+  displayAllShowingItems();
  });

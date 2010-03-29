@@ -34,10 +34,10 @@
 // http://www.rajdeepd.com/articles/chrome/localstrg/LocalStorageSample.htm
 //
 
-console.log('call first time only');
 // Start the magic!
 utils.initDB();
 
+var WIKIQUEUE = {};
 
 /***
 * event: addListener
@@ -49,20 +49,49 @@ chrome.extension.onRequest.addListener(
     console.log(sender.tab ?
                 "from a content script:" + sender.tab.url :
                 "from the extension");
-    var qItem = request;
-    if (!qItem.visited) {
-        // Add it to the DB
-        utils.addItem(qItem);
-        // Send it along to be added to the popup UI
-        chrome.extension.sendRequest(qItem, function(response) {
-            // Tell the sender the results
-            sendResponse({success: response.success});
-         });
+    if (request.hasOwnProperty("visited")) {
+      var qItem = request;
+
+      // Get its tabid
+      //qItem.tabid = WIKIQUEUE.getCurrentTabID();
+      // Add it to the DB
+      utils.addItem(qItem);
+      // Send it along to be added to the popup UI
+      chrome.extension.sendRequest(qItem, function(response) {
+        // Tell the sender the results
+        sendResponse({success: response.success});
+       });
+    } else if (request.hasOwnProperty("query")) {
+      var resp = {};
+      var rQuery = request.query;
+
+      utils.getItemsFromQuery(rQuery, function(items) {
+        resp.query = rQuery;
+        resp.results = JSON.stringify(items);
+
+        // Now the response
+        sendResponse(resp);
+     });
     }
     else {
-        sendResponse({}); // snub them
+      sendResponse({}); // snub them
     }
 });
 
 
+WIKIQUEUE.getCurrentTabID = function() {
+  var tID;
+  chrome.windows.getCurrent(function(curWin) {
+    chrome.tabs.getSelected(curWin.id, function(tab) {
+     tID =  tab.id;
+    });
+  });
 
+  return tID;
+};
+
+
+Array.prototype.copy =
+  function() {
+    return [].concat(this);
+  };

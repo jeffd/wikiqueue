@@ -31,30 +31,41 @@
 
 var utils = {};
 
-utils.logging = true;
+utils = {
+     logging : true,
+     DATABASE_NAME : "wikiqueue",
+     DATABASE_VERSON : "1.0",
+     ARTICLE_TABLENAME : "articles",
 
-utils.DATABASE_NAME = "wikiqueue";
-utils.DATABASE_VERSON = "1.0";
-utils.ARTICLE_TABLENAME = "articles";
-
-utils.QUERY = {};
-utils.QUERY.URL = "url";
-utils.QUERY.TITLE = "title";
-utils.QUERY.CREATED = "created";
-utils.QUERY.BASEURI = "baseuri";
-utils.QUERY.TABID = "tabid";
-utils.QUERY.VISITED = "visited";
+     QUERY : {
+         URL : "url",
+         TITLE : "title",
+         CREATED : "created",
+         BASEURI : "baseuri",
+         TABID : "tabid",
+         VISITED : "visited"
+     }
+ };
 
 //
 // Adapted from http://github.com/remy/html5demos/blob/master/js/tweets.js
 //
-utils.initDB = function() {
+utils.initDB = function(callback) {
   try {
     if (window.openDatabase) {
       utils.db = openDatabase(utils.DATABASE_NAME, utils.DATABASE_VERSON, "Wikiqueue Extension Database", 200000);
       if (utils.db) {
           utils.db.transaction(function(tx) {
-            tx.executeSql("CREATE TABLE IF NOT EXISTS articles (url TEXT UNIQUE, title TEXT, created INTEGER, baseuri TEXT, tabid INTEGER, visited BOOLEAN)", []);
+            var createQuery = "CREATE TABLE IF NOT EXISTS " +
+                                   utils.ARTICLE_TABLENAME + "(" +
+                                   utils.QUERY.URL + " TEXT UNIQUE, " +
+                                   utils.QUERY.TITLE + " TEXT, " +
+                                   utils.QUERY.CREATED + " INTEGER, " +
+                                   utils.QUERY.BASEURI + " TEXT, " +
+                                   utils.QUERY.TABID + " INTEGER, " +
+                                   utils.QUERY.VISITED + " BOOLEAN)";
+            // Makes -> CREATE TABLE IF NOT EXISTS articles (url TEXT UNIQUE, title TEXT, created INTEGER, baseuri TEXT, tabid INTEGER, visited BOOLEAN)
+            tx.executeSql(createQuery, [], callback);
         });
       } else {
         utils.log("error occurred trying to open DB");
@@ -83,6 +94,24 @@ utils.addItem = function(queueItem) {
     utils.log(e);
   }
 };
+
+
+utils.getItemsFromQuery = function(sqlQuery, callback) {
+  if (utils.db) {
+    utils.db.transaction(function (tx) {
+      tx.executeSql(sqlQuery, [], function (tx, results) {
+        var resultItems = [];
+        if (results.rows && results.rows.length) {
+          for (var i = 0; i < results.rows.length; i++) {
+            resultItems[i] = results.rows.item(i);
+          }
+        }
+        callback(resultItems);
+      });
+    });
+  }
+};
+
 
 /***
 * function: getItem
