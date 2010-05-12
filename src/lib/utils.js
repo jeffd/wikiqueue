@@ -80,8 +80,10 @@ utils.initDB = function(callback) {
 
 /***
 * function: setItem
+* return: boolean
 *
-* Adds an item to the local DB
+* Adds an item to the local DB.
+* Returns true if there was no error.
 ***/
 utils.addItem = function(queueItem) {
   try {
@@ -89,9 +91,11 @@ utils.addItem = function(queueItem) {
                      tx.executeSql("INSERT INTO articles (url, title, created, baseuri, tabid, visited) values (?, ?, ?, ?, ?, ?)",
                                    [queueItem.url, queueItem.title, queueItem.created, queueItem.baseuri, queueItem.tabid, queueItem.visited]);
                    });
+    return true;
   }catch(e) {
     utils.log("Error inside setItem");
     utils.log(e);
+    return false;
   }
 };
 

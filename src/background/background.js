@@ -54,13 +54,12 @@ chrome.extension.onRequest.addListener(
 
       // Get its tabid
       //qItem.tabid = WIKIQUEUE.getCurrentTabID();
+
       // Add it to the DB
-      utils.addItem(qItem);
-      // Send it along to be added to the popup UI
-      chrome.extension.sendRequest(qItem, function(response) {
-        // Tell the sender the results
-        sendResponse({success: response.success});
-       });
+      var addResults = utils.addItem(qItem);
+
+      // Tell the sender the results, either true or false
+      sendResponse({success: addResults});
     } else if (request.hasOwnProperty("query")) {
       var resp = {};
       var rQuery = request.query;
