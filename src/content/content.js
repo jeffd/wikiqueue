@@ -1,3 +1,5 @@
+/* -*- Mode: js2-mode; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
+/* vim: sw=2 ts=2 et :*/
 /* ***** BEGIN LICENSE BLOCK *****
  * Version: MIT
  *
