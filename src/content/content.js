@@ -1,5 +1,6 @@
 /* -*- Mode: js2-mode; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 /* vim: sw=2 ts=2 et :*/
+/*jslint white: true, browser: true, devel: true, onevar: true, undef: true, nomen: true, eqeqeq: true, plusplus: true, bitwise: true, regexp: true, newcap: true, immed: true, strict: true, indent: 2 */
 /* ***** BEGIN LICENSE BLOCK *****
  * Version: MIT
  *
@@ -31,7 +32,6 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-console.log("We be on Wikipedia");
 var spinnerImg = chrome.extension.getURL("content/progress-full.png");
 var spinnerImgR = chrome.extension.getURL("content/spinner-right.png");
 var spinnerImgL = chrome.extension.getURL("content/spinner-left.png");
@@ -56,7 +56,17 @@ function spinnerImageURL(num) {
 
 var spinner = $(document.createElement("p")).attr("id", "spinner");
 
-wikiLinks.each(function(i) {
+var stopTimer = function() {
+  spinner.stopTime(OVERRIDEBEHAVIOR);
+  spinner.remove();
+  spinner.stopTime(SPINIMATION);
+};
+
+function gotoURL(aURL) {
+  window.location = aURL;
+}
+
+wikiLinks.each(function(i, currentItem) {
   var qItem = {};
   qItem.url = getBaseURL() + $(this).attr('href');
   qItem.title = $(this).attr('innerText');
@@ -103,30 +113,23 @@ wikiLinks.each(function(i) {
     });
   });
 
+  var displayNotification = function() {
+    $(currentItem).tipTip({content: "Added", delay: 0});
+    $(currentItem).mouseover();
+  };
+
   var queueURL = function() {
     chrome.extension.sendRequest(qItem, function(response) {
-      console.log(response);
+      if (response.success) {
+        console.log("ADDED!");
+        displayNotification();
+      }
     });
   };
 
   $(this).bind("click", queueURL);
   $(this).removeAttr('href');
 });
-
-var stopTimer = function() {
-  spinner.stopTime(OVERRIDEBEHAVIOR);
-  spinner.remove();
-  spinner.stopTime(SPINIMATION);
-};
-
-function gotoURL(aURL) {
-  window.location = aURL;
-}
-
-function displayNotification(event) {
-
-}
-
 
 function getBaseURL() {
   var url = location.href;  // entire url including querystring - also: window.location.href;
