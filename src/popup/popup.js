@@ -1,5 +1,6 @@
 /* -*- Mode: js2-mode; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 /* vim: sw=2 ts=2 et :*/
+/*jslint white: true, browser: true, devel: true, onevar: true, undef: true, nomen: true, eqeqeq: true, plusplus: true, bitwise: true, regexp: true, newcap: true, immed: true, strict: true, indent: 2 */
 /* ***** BEGIN LICENSE BLOCK *****
  * Version: MIT
  *
@@ -55,13 +56,13 @@
 * Adds an item to the list in the popup UI
 ***/
 function addItemToList(newQueryItem) {
-  if (newQueryItem.hasOwnProperty("visited")){
+  if (newQueryItem.hasOwnProperty("visited")) {
     var aResult = $(document.createElement("li"));
     var aLink = $(document.createElement("a")).attr("href", "").html(newQueryItem.title);
     aResult.append(aLink);
 
     // Bind the click handler
-    aResult.mouseup(function(){
+    aResult.mouseup(function() {
       this.openQueuedItem(newQueryItem);
     });
     $("#queuelist").append(aResult);
