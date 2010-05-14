@@ -16,16 +16,19 @@
     "128": "images/icon128.png"
   },
   "background_page": "background/background.html",
+  "options_page": "options/options.html",
   "content_scripts": [
     {
       "run_at": "document_end",
       "js": [
-        "lib/jquery-1.4.1.min.js",
+        "lib/jquery-1.4.2.min.js",
         "lib/jquery.timers-1.2.js",
+        "lib/jquery.tipTip.js",
         "content/content.js"
       ],
       "css": [
-        "content/content.css"
+        "content/content.css",
+        "content/tipTip.css"
       ],
       "matches": [
         "http://*.wikipedia.org/*"
