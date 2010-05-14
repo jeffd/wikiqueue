@@ -1,3 +1,6 @@
+/* -*- Mode: js2-mode; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
+/* vim: sw=2 ts=2 et :*/
+/*jslint white: true, browser: true, devel: true, onevar: true, undef: true, nomen: true, eqeqeq: true, plusplus: true, bitwise: true, regexp: true, newcap: true, immed: true, strict: true, indent: 2 */
 /* ***** BEGIN LICENSE BLOCK *****
  * Version: MIT
  *
@@ -32,20 +35,20 @@
 var utils = {};
 
 utils = {
-     logging : true,
-     DATABASE_NAME : "wikiqueue",
-     DATABASE_VERSON : "1.0",
-     ARTICLE_TABLENAME : "articles",
+  logging : true,
+  DATABASE_NAME : "wikiqueue",
+  DATABASE_VERSON : "1.0",
+  ARTICLE_TABLENAME : "articles",
 
-     QUERY : {
-         URL : "url",
-         TITLE : "title",
-         CREATED : "created",
-         BASEURI : "baseuri",
-         TABID : "tabid",
-         VISITED : "visited"
-     }
- };
+  QUERY : {
+    URL : "url",
+    TITLE : "title",
+    CREATED : "created",
+    BASEURI : "baseuri",
+    TABID : "tabid",
+    VISITED : "visited"
+  }
+};
 
 //
 // Adapted from http://github.com/remy/html5demos/blob/master/js/tweets.js
@@ -66,7 +69,7 @@ utils.initDB = function(callback) {
                                    utils.QUERY.VISITED + " BOOLEAN)";
             // Makes -> CREATE TABLE IF NOT EXISTS articles (url TEXT UNIQUE, title TEXT, created INTEGER, baseuri TEXT, tabid INTEGER, visited BOOLEAN)
             tx.executeSql(createQuery, [], callback);
-        });
+          });
       } else {
         utils.log("error occurred trying to open DB");
       }
@@ -87,12 +90,12 @@ utils.initDB = function(callback) {
 ***/
 utils.addItem = function(queueItem) {
   try {
-      utils.db.transaction(function (tx) {
-                     tx.executeSql("INSERT INTO articles (url, title, created, baseuri, tabid, visited) values (?, ?, ?, ?, ?, ?)",
+    utils.db.transaction(function (tx) {
+                           tx.executeSql("INSERT INTO articles (url, title, created, baseuri, tabid, visited) values (?, ?, ?, ?, ?, ?)",
                                    [queueItem.url, queueItem.title, queueItem.created, queueItem.baseuri, queueItem.tabid, queueItem.visited]);
                    });
     return true;
-  }catch(e) {
+  } catch(e) {
     utils.log("Error inside setItem");
     utils.log(e);
     return false;
@@ -130,7 +133,7 @@ utils.getItem = function(key) {
     value = window.localStorage.getItem(key);
     var strToJSON = JSON.parse(value);
     value = strToJSON;
-  }catch(e) {
+  } catch(e) {
     utils.log("Error inside getItem() for key:" + key);
     utils.log(e);
     value = "null";
@@ -141,15 +144,25 @@ utils.getItem = function(key) {
 
 /***
 * function: clearStorage
+* return: boolean
 *
-* Deletes all the entries in the local DB
+* Deletes all the entries in the local DB.
+* Returns saying if it succeded.
 ***/
 utils.clearStorage = function() {
-  utils.log('about to clear local storage');
-  utils.db.transaction(function (tx) {
-     tx.executeSql('DROP TABLE IF EXISTS ?', [utils.ARTICLE_TABLENAME]);
-  });
+  try {
+    utils.log('about to clear local storage');
+    utils.db.transaction(function (tx) {
+      var dropQuery = "DROP TABLE IF EXISTS " + utils.ARTICLE_TABLENAME;
+      tx.executeSql(dropQuery, []);
+    });
+  } catch (e) {
+    utils.log("error occurred while clearing the local database.");
+    return false;
+  }
+
   utils.log('cleared');
+  return true;
 };
 
 /***
@@ -162,7 +175,7 @@ utils.key = function(index) {
   utils.log('Get Item:' + index);
   try {
     value = window.localStorage.key(index);
-  }catch(e) {
+  } catch(e) {
     utils.log("Error inside key() for index:" + index);
     utils.log(e);
     value = "null";
@@ -181,7 +194,7 @@ utils.length = function() {
   utils.log('Get length');
   try {
     value = window.localStorage.length;
-  }catch(e) {
+  } catch(e) {
     utils.log("Error inside length attribute");
     utils.log(e);
     value = "null";

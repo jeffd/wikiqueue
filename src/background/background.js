@@ -48,9 +48,6 @@ var WIKIQUEUE = {};
 ***/
 chrome.extension.onRequest.addListener(
   function(request, sender, sendResponse) {
-    console.log(sender.tab ?
-                "from a content script:" + sender.tab.url :
-                "from the extension");
     if (request.hasOwnProperty("visited")) {
       var qItem = request;
 
@@ -73,6 +70,9 @@ chrome.extension.onRequest.addListener(
         // Now the response
         sendResponse(resp);
      });
+    } else if (request.hasOwnProperty("dropDB")) {
+      var clearedStorage = utils.clearStorage();
+      sendResponse({success: clearedStorage});
     }
     else {
       sendResponse({}); // snub them
